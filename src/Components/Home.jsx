@@ -474,26 +474,7 @@ const Home = ({ selectArea, setSelectArea, Carts, setCarts }) => {
     }
   };
 
-  const loginAdmin = async () => {
-    try {
-      const config = {
-        url: "/User/Sendotp",
-        method: "post",
-        baseURL: "https://dailydishbangalore.com/api",
-        headers: { "content-type": "application/json" },
-        data: {
-          Mobile: Mobile,
-        },
-      };
-      let res = await axios(config);
-      if (res.status === 200) {
-        alert("OTP Sent to Your Mobile Number");
-      }
-    } catch (error) {
-      alert(error.response.data.error);
-      console.log(error);
-    }
-  };
+
 
   // Verify OTP
   const verifyOTP = async () => {
@@ -992,7 +973,7 @@ const Home = ({ selectArea, setSelectArea, Carts, setCarts }) => {
                 if (!validateIndianMobileNumber(Mobile)) {
                   return alert("Invalid mobile number");
                 }
-                handleShow2();
+                userLogin();
               }}
               // onClick={() => navigate("/checkout")}
             >

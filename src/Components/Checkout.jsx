@@ -154,12 +154,7 @@ const Checkout = () => {
 
 
 
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
+
   const d = new Date();
 
   const formattedProducts = cartdata?.map((item) => ({
@@ -206,7 +201,7 @@ const Checkout = () => {
       if (Carts.length < 1) {
         return alert("Please add items to cart");
       }
-      if (!delivarychargetype && delivarychargetype != 0) {
+      if (!selectedOption) {
         return alert("Please select the Delivary Type!");
       }
 
@@ -217,6 +212,7 @@ const Checkout = () => {
         return alert("Please select the address type!");
       }
    
+      
 
       const config = {
         url: "/admin/addfoodorder",
@@ -233,7 +229,7 @@ const Checkout = () => {
           paymentmethod: paymentmethod,
           delivarytype: Number(delivarychargetype || 0),
           payid: payid,
-          addressline: user?.Address,
+          addressline: `${address?.name} ${address?.flatno ? `${address?.flatno},` : ""} ${address?.Address}  ${address?.mobilenumber} ` ,
           subTotal: subtotal,
           foodtotal: Number(data?.total),
           allTotal: (
@@ -503,6 +499,17 @@ const Checkout = () => {
   const calculateTaxPrice = useMemo(() => {
     return (gstlist[0]?.TotalGst / 100) * subtotal;
   }, [subtotal, gstlist]);
+
+
+  useEffect(()=>{
+    if(user){
+      setAddress({...address,name:user?.Fname,flatno:user?.Flatno,mobilenumber:user?.Mobile});
+      setFlat(addresstype == "apartment" ? user?.Flatno:"" );
+      setname(user?.Fname)
+      setmobilenumber(user?.Mobile);
+
+    }
+  },[])
 
   return (
     <div className="mainbg">
@@ -862,7 +869,7 @@ const Checkout = () => {
               <div className="d-flex">
                 {address?.name},{" "}
                 {address?.flatno ? `${address?.flatno},` : ""}
-                {address?.Address},
+               
                 {address?.mobilenumber},
 
               </div>

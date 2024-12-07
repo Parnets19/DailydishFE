@@ -70,10 +70,42 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
 
   const handleClose5 = () => setShow5(false);
   const handleShow5 = () => setShow5(true);
-
   const [show7, setShow7] = useState(false);
   const handleClose7 = () => setShow7(false);
   const handleShow7 = () => setShow7(true);
+  const [Mobile, setMobile] = useState("");
+  const userLogin = async () => {
+    if (!Mobile) {
+      return alert("Enter Your Mobile Number");
+    }
+    try {
+      const config = {
+        url: "/User/Sendotp",
+        method: "post",
+        baseURL: "https://dailydishbangalore.com/api",
+
+        headers: { "content-type": "application/json" },
+        data: {
+          Mobile: Mobile,
+        },
+      };
+
+      const res = await axios(config);
+      if (res.status === 401) {
+        alert("Invalid Mobile Number");
+      }
+      if (res.status === 402) {
+        alert("Error sending OTP");
+      }
+      if (res.status === 200) {
+        handleShow7()
+      }
+    } catch (error) {
+      console.log("error", error.message);
+    }
+  };
+
+
 
   const [show8, setShow8] = useState(false);
 
@@ -81,7 +113,7 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
   const handleShow8 = () => setShow8(true);
 
   const [Apartment, setApartment] = useState("");
-  const [Mobile, setMobile] = useState("");
+
 
   const handleShowCart = () => setShowCart(true);
 
@@ -1234,7 +1266,7 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
                 if (!validateIndianMobileNumber(Mobile)) {
                   return alert("Invalid mobile number");
                 }
-                handleShow7();
+                userLogin()
               }}
               // onClick={() => navigate("/checkout")}
             >
