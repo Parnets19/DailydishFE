@@ -12,14 +12,14 @@ const PaymentSuccess = () => {
   const orderId = searchParams.get('orderId');
 
   const handleHomeClick = () => {
-    sessionStorage.removeItem("config");
-    sessionStorage.removeItem("id");
+    localStorage.removeItem("config");
+    localStorage.removeItem("id");
     navigate("/orders");
   };
 
   const booking = async () => {
     try {
-      const config = JSON.parse(sessionStorage.getItem("config"));
+      const config = JSON.parse(localStorage.getItem("config"));
       if (!config) return;
       let res = await axios(config);
       if (res.status == 200) {
@@ -30,8 +30,8 @@ const PaymentSuccess = () => {
           button: "OK",
         });
 
-        sessionStorage.removeItem("config");
-        sessionStorage.removeItem("id");
+        localStorage.removeItem("config");
+        localStorage.removeItem("id");
         setTimeout(() => {
           navigate("/orders");
         }, 2000);
@@ -41,7 +41,7 @@ const PaymentSuccess = () => {
     }
   };
   useEffect(() => {
-    const id = sessionStorage.getItem("id");
+    const id = localStorage.getItem("id");
     if (id) {
       booking();
     }

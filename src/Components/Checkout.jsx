@@ -212,7 +212,7 @@ const Checkout = () => {
         return alert("Please add items to cart");
       }
       if (!selectedOption) {
-        return alert("Please select the delivary type!");
+        return alert("Please select the delivery type!");
       }
 
       if (!slotdata) {
@@ -286,6 +286,9 @@ const Checkout = () => {
       };
       const res = await axios(config1);
       if (res.status === 200) {
+
+        localStorage.setItem("config",JSON.stringify(config));
+        localStorage.setItem("id",res.data?.id)
         return window.location.assign(res.data?.url?.url);
 
         // window.location.reload(true);
