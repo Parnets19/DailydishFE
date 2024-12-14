@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Dailydish",
+  "name": "Daily Dish - Your go-to destination for delicious food delivery, recipes, and culinary inspiration.",
   "icons": [
     {
       "src": "favicon.ico",
