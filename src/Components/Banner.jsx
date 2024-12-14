@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "../Styles/Banner.css";
 
 import { Button, Modal, Form, Dropdown, InputGroup } from "react-bootstrap";
@@ -28,14 +28,13 @@ import { GrDocumentUser } from "react-icons/gr";
 
 import swal from "sweetalert";
 import useId from "@mui/material/utils/useId";
+import { FaSquareWhatsapp } from "react-icons/fa6";
 // import { FaEye, FaEyeSlash, FaUser } from "react-icons/fa";
 
 const Banner = ({ selectArea, setSelectArea, Carts }) => {
-  //   const location = useLocation();
-  //   const data = location.state;
-  // console.log("data",data);
-  const addresstype = localStorage.getItem("addresstype");
-  const corporateaddress = JSON.parse(localStorage.getItem("coporateaddress"));
+
+  let addresstype = localStorage.getItem("addresstype");
+  let corporateaddress = JSON.parse(localStorage.getItem("coporateaddress"));
 
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -98,6 +97,7 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
         alert("Error sending OTP");
       }
       if (res.status === 200) {
+        handleClose3()
         handleShow7()
       }
     } catch (error) {
@@ -112,8 +112,6 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
   const handleClose8 = () => setShow8(false);
   const handleShow8 = () => setShow8(true);
 
-  const [Apartment, setApartment] = useState("");
-
 
   const handleShowCart = () => setShowCart(true);
 
@@ -124,12 +122,6 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
     message
   )}`;
 
-  const handleChange = (event) => {
-    setApartment(event.target.value);
-    if (event.target.value !== "") {
-      setShow(true);
-    }
-  };
 
   const logOut = () => {
     swal({
@@ -145,26 +137,7 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
     // localStorage.removeItem("user");
 
   };
-  const loginAdmin = async () => {
-    try {
-      const config = {
-        url: "/User/Sendotp",
-        method: "post",
-        baseURL: "https://dailydishbangalore.com/api",
-        headers: { "content-type": "application/json" },
-        data: {
-          Mobile: Mobile,
-        },
-      };
-      let res = await axios(config);
-      if (res.status === 200) {
-        alert("OTP Sent to Your Mobile Number");
-      }
-    } catch (error) {
-      alert(error.response.data.error);
-      console.log(error);
-    }
-  };
+
 
   //OTP save modal
   const [show1, setShow1] = useState(false);
@@ -238,12 +211,13 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
     };
     getAddWebstory();
   }, []);
-  const [address, setAddress1] = useState(
-    JSON.parse(localStorage.getItem("address")) || {}
-  );
-  const Handeledata = (ab) => {
+  const address=JSON.parse(localStorage.getItem("address")) 
+
+  const Handeledata = (ab,def) => {
+   
     try {
       if (ab) {
+        if(!user) return handleShow3();
         let data = JSON.parse(ab);
         const addressData = {
           Address: data?.Address,
@@ -253,11 +227,18 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
           pincode: data?.pincode,
           approximatetime: data?.approximatetime,
           prefixcode: data?.prefixcode,
+          name:ab?.Name ? ab?.Name:"",
+          flatno:ab?.fletNumber? ab?.fletNumber:"",
+          mobilenumber:ab?.Number ? ab?.Number:"",
+          towerName:ab?.towerName ? ab?.towerName:"",
         };
-        saveSelectedAddress(data);
+        if(!def){
+           saveSelectedAddress(data);
+        }
+       
         if (addresstype === "apartment") {
           localStorage.setItem("address", JSON.stringify(addressData));
-          setAddress1(data);
+          // setAddress1(data);
         } else {
           localStorage.setItem("coporateaddress", JSON.stringify(addressData));
         }
@@ -336,68 +317,7 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
     }
   };
 
-  const handleRegister = async () => {
-    if (!Fname) {
-      return alert("Enter Your Name");
-    }
-    if (!Mobile) {
-      return alert("Enter Your Mobile Number");
-    }
-    if (!Address) {
-      return alert("Enter Your Address");
-    }
-    if (!Flatno) {
-      return alert("Enter Your Flat Number");
-    }
-    if (!validateIndianMobileNumber(Mobile)) {
-      return alert("Invalid mobile number");
-    }
-    try {
-      const config = {
-        url: "/User/registercustomer",
-        method: "post",
-        baseURL: "https://dailydishbangalore.com/api",
-
-        headers: { "content-type": "application/json" },
-        data: {
-          Fname: Fname,
-          Address: Address,
-          Mobile: Mobile,
-          Flatno: Flatno,
-        },
-        maxRedirects: 0,
-      };
-      let res = await axios(config);
-      if (res.status === 200) {
-        saveSelectedAddress();
-        localStorage.setItem("user", JSON.stringify(res.data.details));
-        setFname(" ");
-        setAddress(" ");
-        setFlatno(" ");
-        handleClose4();
-        // loginAdmin();
-        handleShow3();
-      }
-      if (res.status === 302) {
-        alert(res.data.message);
-      }
-    } catch (error) {
-      if (error.response) {
-        if (error.response.status === 302) {
-          // Handle 302 as a custom case
-          alert(error.response.data.message || "Redirection occurred");
-        } else {
-          // Handle other errors
-          alert(error.response.data.message || "An error occurred");
-        }
-      } else if (error.request) {
-        alert("No response from the server. Please try again.");
-      } else {
-        alert(error.message);
-      }
-    }
-  };
-
+ 
   const currentTime = new Date();
   const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes(); // Convert time to minutes since midnight
 
@@ -441,31 +361,6 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
     timeShow = "Ordering resumes at 08:00 AM.";
   }
 
-  console.log(displayMessage, timeShow);
-
-  function getDashedBorder(storyLength) {
-    if (storyLength <= 0) return "none"; // No border for 0 stories
-
-    const dashColor = "wheat"; // Color of the dashes
-    const gapColor = "transparent"; // Gap color
-    const anglePerDash = 360 / storyLength; // Angle per segment
-
-    // Construct the conic gradient
-    const segments = Array(storyLength)
-      .fill(0)
-      .map(
-        (_, i) =>
-          `${dashColor} ${i * anglePerDash}deg ${
-            i * anglePerDash + anglePerDash / 2
-          }deg, 
-          ${gapColor} ${i * anglePerDash + anglePerDash / 2}deg ${
-            (i + 1) * anglePerDash
-          }deg`
-      )
-      .join(", ");
-
-    return `conic-gradient(${segments})`;
-  }
 
   const verifyOTP = async () => {
     try {
@@ -488,15 +383,7 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
         localStorage.setItem("user", JSON.stringify(res.data.details));
         sessionStorage.setItem("user", JSON.stringify(res.data.details));
         alert("OTP verified successfully");
-        if (!address) {
-          handleClose7();
-          handleClose3();
-          return navigate("/home");
-        }
-        navigate("/checkout");
-        handleClose2();
-        setOTP("");
-        setMobile(" ");
+        window.location.reload()
       }
     } catch (error) {
       console.log(error);
@@ -509,26 +396,40 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
   const getSelectedAddress = async () => {
     try {
       let res = await axios.get(
-        `https://dailydishbangalore.com/api/user/getSelectedAddressByUserID/${user?._id}`
+        `https://dailydishbangalore.com/api/user/getSelectedAddressByUserIDAddType/${user?._id}/${addresstype}`
       );
       if (res.status === 200) {
         setSelectedAddress(res.data.getdata);
+      
+        console.log("Selected Address",res.data.getdata);
+        
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  // console.log("selectedAddress", selectedAddress);
-
+ 
   useEffect(() => {
-    getSelectedAddress();
+    if(user){
+       getSelectedAddress();
+    }
   }, []);
 
-  const saveSelectedAddress = async (data) => {
-    // console.log("data", data);
+  useMemo(()=>{
+    if(addresstype=="apartment"){
+   let am= apartmentdata.find((ele)=>ele?._id?.toString()==selectedAddress?.addressid)
+      Handeledata(JSON.stringify({...am,...selectedAddress}),"def")  
+      
+    }else{
+      Handeledata(JSON.stringify({...corporatedata.find((ele)=>ele?._id?.toString()==selectedAddress?.addressid),...selectedAddress}),"def")  
+    }
+  },[selectedAddress])
 
+
+  const saveSelectedAddress = async (data) => {
     try {
+      if(!user) return 
       let res = await axios.post(
         `https://dailydishbangalore.com/api/user/addressadd`,
         {
@@ -536,15 +437,11 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
           Number: user?.Mobile,
           userId: user?._id,
           ApartmentName: data?.Apartmentname,
-          Address: data?.Address,
-          approximatetime: data?.approximatetime,
-          prefixcode: data?.prefixcode,
+          addresstype:addresstype,
+          addressid:data?._id
         }
       );
-      if (res.status === 200) {
-        setSelectedAddress(res.data.getdata);
-        // alert("Address Selected");
-      }
+    
     } catch (error) {
       console.log(error);
     }
@@ -945,7 +842,7 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
                           <Nav.Link
                             href=""
                             className="tail-text"
-                            onClick={handleShow4}
+                            onClick={handleShow3}
                           >
                             <div className="d-flex gap-3 align-items-center">
                               <div>
@@ -953,7 +850,7 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
                                   <FaLock className="fabicon" />{" "}
                                 </span>{" "}
                               </div>
-                              <div className="textcolor">Register/Login </div>
+                              <div className="textcolor">Login </div>
                             </div>
                           </Nav.Link>
                           <Nav.Link href="/livestreams" className="tail-text">
@@ -1166,7 +1063,7 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
         </Offcanvas.Body>
       </Offcanvas>
 
-      <Modal
+      {/* <Modal
         show={show4}
         backdrop="static"
         onHide={handleClose4}
@@ -1237,21 +1134,28 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
             Login
           </Button>
         </Modal.Body>
-      </Modal>
+      </Modal> */}
 
       <Modal show={show3} backdrop="static" onHide={handleClose3}>
         <Modal.Header closeButton>
-          <Modal.Title>Login Here</Modal.Title>
+          <Modal.Title className="d-flex align-items-center gap-1"><FaLock color="orangered"/>  <span>Welcome to Dailydish</span> </Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          
           <Form>
-            <Form.Control
+          <div className="login-whatsappwithicon">
+           
+              <FaSquareWhatsapp  size={42} color="green"/>
+         
+          <Form.Control
               type="number"
-              placeholder="Enter Phone Number"
-              style={{ marginTop: "18px" }}
+              placeholder="Enter Your WhatsApp Number"
+             
               value={Mobile}
               onChange={(e) => setMobile(e.target.value)}
             />
+          </div>
+           
 
             <Button
               variant=""
@@ -1270,7 +1174,7 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
               }}
               // onClick={() => navigate("/checkout")}
             >
-              Login
+              Send otp
             </Button>
           </Form>
         </Modal.Body>
@@ -1297,7 +1201,7 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
         </Modal.Header>
         <Modal.Body>
           <span style={{ fontSize: "13px" }}>
-            An OTP has been sent to your Phone Number
+            An OTP has been sent to your whatsapp
           </span>
           <div className="d-flex gap-1 mt-3 mb-3">
             <InputGroup className="mb-2" style={{ background: "white" }}>

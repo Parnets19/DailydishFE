@@ -29,12 +29,15 @@ const Checkout = () => {
   const location = useLocation();
   const data = location?.state;
   const addresstype = localStorage.getItem("addresstype");
-  const [address, setAddress] = useState(addresstype == "apartment"
-    ? JSON.parse(localStorage.getItem("address"))
-    : JSON.parse(localStorage.getItem("coporateaddress")))
+  const [address, setAddress] = useState({});
 
-
-
+  useMemo(() => {
+    setAddress(
+      addresstype == "apartment"
+        ? JSON.parse(localStorage.getItem("address"))
+        : JSON.parse(localStorage.getItem("coporateaddress"))
+    );
+  }, [addresstype]);
 
   const Carts = JSON.parse(localStorage.getItem("cart"));
   const [cartdata, setCartData] = useState([]);
@@ -44,7 +47,6 @@ const Checkout = () => {
   const [show, setShow] = useState();
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
-
 
   const [apartmentdata, setapartmentdata] = useState([]);
   const getapartmentd = async () => {
@@ -75,12 +77,10 @@ const Checkout = () => {
     }
   };
 
-
-
-
-
   // Fetch data from local storage on component mount and whenever cart changes
   useEffect(() => {
+    getapartmentd();
+    getCorporatedata();
     const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
     setCartData(storedCart);
   }, []);
@@ -134,9 +134,7 @@ const Checkout = () => {
   const [slotdata, setslotdata] = useState();
   const [payid, setpayid] = useState("pay001");
   const [Cutlery, setCutlery] = useState(0);
-  const [paymentmethod, setpaymentmethod] = useState("offline");
-  console.log("delivarychargetype", delivarychargetype);
-  console.log("address", address);
+  const [paymentmethod, setpaymentmethod] = useState("Online");
 
   const [name, setname] = useState();
   const [buildingaddress, setbuildingaddress] = useState();
@@ -152,9 +150,6 @@ const Checkout = () => {
     setSelectedOption(option); // Sets the selected option
   };
 
-
-
-
   const d = new Date();
 
   const formattedProducts = cartdata?.map((item) => ({
@@ -162,57 +157,70 @@ const Checkout = () => {
     totalPrice: item.totalPrice,
     quantity: item.Quantity, // Using Quantity as per the structure
   }));
-  const clearCart = async () => {
-    // Log to confirm the action
-    console.log("Clearing all items from cart");
-
-    // Clear the cart in localStorage
-    localStorage.removeItem("cart");
-
-    // Optional: reload the page to reflect changes
-    // window.location.reload();
-  };
-  const [slotsdata, setslotsdata] = useState([]);
-  const getslotsdata = async () => {
-    try {
-      let res = await axios.get(
-        "https://dailydishbangalore.com/api/admin/getavailableslots"
-      );
-      if (res.status === 200) {
-        setslotsdata(res.data.Newaddress);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    getslotsdata();
-  }, []);
 
   const generateUniqueId = () => {
     const timestamp = Date.now().toString().slice(-4); // Get last 4 digits of the current timestamp
     const randomNumber = Math.floor(1000 + Math.random() * 9000); // Generate a 4-digit random number
     return `${address?.prefixcode}${timestamp}${randomNumber}`; // Resulting in an 8-character ID
   };
-
+  const [couponId, setCouponId] = useState("");
+  const [coupon, setCoupon] = useState(0);
+  const applycoupon = async () => {
+    try {
+      if (!couponId)
+        return swal({
+          title: "Error",
+          text: "Please enter coupon code",
+          icon: "error",
+        });
+      const config = {
+        url: "/admin/applyCoupon",
+        method: "post",
+        baseURL: "https://dailydishbangalore.com/api/",
+        header: { "content-type": "application/json" },
+        data: {
+          mobileNumber: user?.Mobile,
+          couponName: couponId,
+          cards: cartdata,
+        },
+      };
+      const response = await axios(config);
+      if (response.status === 200) {
+        setCoupon(response.data.discountPrice);
+        swal({
+          title: "Success",
+          text: "Coupon Applied Successfully",
+          icon: "success",
+          buttons: "ok",
+        });
+      }
+    } catch (error) {
+      swal({
+        title: "Warning",
+        text: error?.response
+          ? error.response.data.message
+          : "Something went wrong",
+        icon: "error",
+        buttons: "ok",
+      });
+      console.log(error);
+    }
+  };
   const placeorder = async () => {
     try {
       if (Carts.length < 1) {
         return alert("Please add items to cart");
       }
       if (!selectedOption) {
-        return alert("Please select the Delivary Type!");
+        return alert("Please select the delivary type!");
       }
 
       if (!slotdata) {
-        return alert("Please select slot time!");
+        return alert("Please select slots time!");
       }
       if (!addresstype) {
         return alert("Please select the address type!");
       }
-   
-      
 
       const config = {
         url: "/admin/addfoodorder",
@@ -224,22 +232,28 @@ const Checkout = () => {
           allProduct: formattedProducts,
           Placedon: d,
           delivarylocation: delivaryaddress,
-          username: user?.Fname,
+          username: address?.name,
           Mobilenumber: Number(user?.Mobile),
           paymentmethod: paymentmethod,
           delivarytype: Number(delivarychargetype || 0),
           payid: payid,
-          addressline: `${address?.name} ${address?.flatno ? `${address?.flatno},` : ""} ${address?.Address}  ${address?.mobilenumber} ` ,
+          addressline: `${address?.name} ${
+            addresstype=="apartment" ? `${address?.flatno},` : ""
+          } ${
+            addresstype=="apartment" ? `${address?.towerName},` : ""
+          }  ${address?.mobilenumber} `,
           subTotal: subtotal,
           foodtotal: Number(data?.total),
           allTotal: (
             calculateTaxPrice +
             subtotal +
             Cutlery +
-            delivarychargetype
+            delivarychargetype -
+            coupon
           )?.toFixed(2),
           tax: calculateTaxPrice,
           slot: slotdata,
+
           Cutlery: Number(Cutlery),
           approximatetime: selectedSlot,
           orderdelivarytype: addresstype,
@@ -248,33 +262,32 @@ const Checkout = () => {
           prefixcode: address?.prefixcode,
           orderid: generateUniqueId(),
           deliveryMethod: selectedOption,
+          coupon: coupon,
+          couponId: couponId,
         },
       };
-
-
-
       const config1 = {
         url: "/user/addpaymentphonepay",
         method: "post",
         baseURL: "https://dailydishbangalore.com/api/",
         header: { "content-type": "application/json" },
         data: {
-          "userId": user?._id, "username": user?.Fname, "Mobile": user?.Mobile, "amount": calculateTaxPrice +
+          userId: user?._id,
+          username: user?.Fname,
+          Mobile: user?.Mobile,
+          amount:
+            calculateTaxPrice +
             subtotal +
             Cutlery +
-            delivarychargetype
-        }
-      }
+            delivarychargetype -
+            coupon,
+          config: JSON.stringify(config),
+        },
+      };
       const res = await axios(config1);
       if (res.status === 200) {
-        sessionStorage.setItem("config", JSON.stringify(config));
-        sessionStorage.setItem("id", res.data.id);
-        clearCart();
-        // console.log(res.data);
-        
-    return   window.location.assign(res.data?.url?.url)
-       
-      
+        return window.location.assign(res.data?.url?.url);
+
         // window.location.reload(true);
       }
     } catch (error) {
@@ -287,10 +300,48 @@ const Checkout = () => {
       });
     }
   };
-  console.log("apa", apartmentdata);
 
-  const Savedaddressdata = JSON.parse(sessionStorage.getItem("Savedaddress"));
-  console.log("Savedaddressdata", Savedaddressdata);
+  const [towerName, setTowerName] = useState("");
+
+  const getSelectedAddress = async (id) => {
+    setApartmentname(id);
+    try {
+      let res = await axios.get(
+        `https://dailydishbangalore.com/api/user/getSelectedAddressByUserIDAddressID/${user?._id}/${id}`
+      );
+      if (res.status === 200) {
+        let am = res.data.getdata;
+
+        setname(am?.Name?am?.Name:"");
+        setmobilenumber(am?.Number?am?.Number:"");
+        setTowerName(am?.towerName?am?.towerName:"");
+        setFlat(am?.fletNumber? am?.fletNumber:"");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const saveSelectedAddress = async (data) => {
+    try {
+      if (!user) return;
+      let res = await axios.post(
+        `https://dailydishbangalore.com/api/user/addressadd`,
+        {
+          Name: name,
+          Number: mobilenumber,
+          userId: user?._id,
+          ApartmentName: data?.apartmentname,
+          addresstype: addresstype,
+          addressid: data?._id,
+          fletNumber:flat,
+          towerName: towerName,
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const Handeledata = () => {
     if (!apartmentname) {
@@ -300,41 +351,56 @@ const Checkout = () => {
       return alert("Please Enter Name!");
     }
 
-    // if (!flat) {
-    //   return alert("Please Enter Flat No");
-    // }
     if (!mobilenumber) {
       return alert("Please Enter Mobile Number!");
     }
+    if( addresstype == "apartment" && !flat) return alert("Please Enter flat number");
+    if( addresstype == "apartment" && !towerName) return alert("Please Enter Tower Name");
+    console.log("apartmentname===>",apartmentname);
+    
     try {
       //corporatedata
       const Savedaddress = {
-        apartmentname: (addresstype == "apartment" ? apartmentdata : corporatedata)?.find(
+        _id: (addresstype == "apartment" ? apartmentdata : corporatedata)?.find(
           (data) => data?.Apartmentname === apartmentname
-        )?.Apartmentname,
-        Delivarycharge: (addresstype == "apartment" ? apartmentdata : corporatedata)?.find(
-          (data) => data?.Apartmentname === apartmentname
-        )?.apartmentdelivaryprice,
-        doordelivarycharge: (addresstype == "apartment" ? apartmentdata : corporatedata)?.find(
-          (data) => data?.Apartmentname === apartmentname
-        )?.doordelivaryprice,
+        )?._id,
+        apartmentname: (addresstype == "apartment"
+          ? apartmentdata
+          : corporatedata
+        )?.find((data) => data?.Apartmentname === apartmentname)?.Apartmentname,
+        Delivarycharge: (addresstype == "apartment"
+          ? apartmentdata
+          : corporatedata
+        )?.find((data) => data?.Apartmentname === apartmentname)
+          ?.apartmentdelivaryprice,
+        doordelivarycharge: (addresstype == "apartment"
+          ? apartmentdata
+          : corporatedata
+        )?.find((data) => data?.Apartmentname === apartmentname)
+          ?.doordelivaryprice,
         buildingaddress: buildingaddress,
         flatno: flat,
         name: name,
+        towerName: towerName,
         mobilenumber: mobilenumber,
-        prefixcode: (addresstype == "apartment" ? apartmentdata : corporatedata)?.find((data) => data?.Apartmentname === apartmentname)
-          ?.prefixcode,
+        prefixcode: (addresstype == "apartment"
+          ? apartmentdata
+          : corporatedata
+        )?.find((data) => data?.Apartmentname === apartmentname)?.prefixcode,
       };
 
       addresstype == "apartment"
         ? localStorage.setItem("address", JSON.stringify(Savedaddress))
-        : sessionStorage.setItem("coporateaddress", JSON.stringify(Savedaddress));
+        : sessionStorage.setItem(
+            "coporateaddress",
+            JSON.stringify(Savedaddress)
+          );
 
-      setAddress(Savedaddress)
+      setAddress(Savedaddress);
 
       sessionStorage.setItem("Savedaddress", JSON.stringify(Savedaddress));
+      saveSelectedAddress(Savedaddress);
       handleClose();
-
     } catch (error) {
       console.log(error);
     }
@@ -358,27 +424,7 @@ const Checkout = () => {
 
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState("");
-
-  const [fooditemdata, setfooditemdata] = useState([]);
-  const getfooditems = async () => {
-    try {
-      let res = await axios.get(
-        "https://dailydishbangalore.com/api/admin/getFoodItems"
-      );
-      if (res.status === 200) {
-        setfooditemdata(res.data.data);
-        console.log("food", res.data.data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    getfooditems();
-  }, []);
-
-  const filterOutLowStockItems = () => {
+  const filterOutLowStockItems = (fooditemdata) => {
     let filteredCart = []; // To store items that pass the filter condition
 
     setCartData((prevCart) => {
@@ -396,10 +442,25 @@ const Checkout = () => {
       return filteredCart; // Update state with filtered cart
     });
   };
+  // const [fooditemdata, setfooditemdata] = useState([]);
+  const getfooditems = async () => {
+    try {
+      let res = await axios.get(
+        "https://dailydishbangalore.com/api/admin/getFoodItemsUnBlocks"
+      );
+      if (res.status === 200) {
+        // setfooditemdata(res.data.data);
+        console.log("food", res.data.data);
+        filterOutLowStockItems(res.data.data);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    filterOutLowStockItems();
-  }, [fooditemdata]);
+    getfooditems();
+  }, []);
 
   const slots = {
     lunch: {
@@ -435,8 +496,9 @@ const Checkout = () => {
       const hours = current.getHours();
 
       const minutes = current.getMinutes();
-      const time = `${hours > 9 ? hours : "0" + hours}:${minutes < 10 ? "0" : ""
-        }${minutes}`;
+      const time = `${hours > 9 ? hours : "0" + hours}:${
+        minutes < 10 ? "0" : ""
+      }${minutes}`;
 
       let slotsToShow = [];
 
@@ -462,14 +524,10 @@ const Checkout = () => {
     return () => clearInterval(interval); // Cleanup on component unmount
   }, []);
 
-
   const handleSlotChange = (event) => {
     setSelectedSlot(event.target.value);
     setslotdata(event.target.value);
   };
-
-  console.log("apartmentname==>", apartmentname);
-
 
   const subtotal = useMemo(() => {
     return cartdata?.reduce((acc, item) => {
@@ -500,16 +558,28 @@ const Checkout = () => {
     return (gstlist[0]?.TotalGst / 100) * subtotal;
   }, [subtotal, gstlist]);
 
+  const [isHandleShowCalled, setIsHandleShowCalled] = useState(false);
 
-  useEffect(()=>{
-    if(user){
-      setAddress({...address,name:user?.Fname,flatno:user?.Flatno,mobilenumber:user?.Mobile});
-      setFlat(addresstype == "apartment" ? user?.Flatno:"" );
-      setname(user?.Fname)
-      setmobilenumber(user?.Mobile);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      const isDataIncomplete =
+        !address?.name ||
+        !addresstype ||
+        !corporatedata?.length ||
+        !apartmentdata?.length;
 
-    }
-  },[])
+      if (!isHandleShowCalled && isDataIncomplete) {
+        console.log("Address Data:", address); // Debugging: check the data
+    // Ensure safety when accessing data
+    getSelectedAddress(address?.apartmentname)
+        setIsHandleShowCalled(true); // Prevent multiple calls
+        handleShow(); // Trigger the modal
+      }
+    }, 500); // Delay of 500ms
+
+    // Clean up the timeout to avoid memory leaks
+    return () => clearTimeout(timeout);
+  }, [address, addresstype, corporatedata, apartmentdata, isHandleShowCalled]);
 
   return (
     <div className="mainbg">
@@ -597,6 +667,8 @@ const Checkout = () => {
             </div>
           </div>
 
+        
+
           <div className="deliverycard">
             <div className="deliveryHead">
               <span style={{ fontWeight: 700 }}>Choose Delivery Type</span>
@@ -608,8 +680,9 @@ const Checkout = () => {
                 <>
                   <div
                     variant={selectedOption === "Door" ? "white" : ""}
-                    className={`leftcard ${selectedOption === "Door" ? "active" : ""
-                      }`}
+                    className={`leftcard ${
+                      selectedOption === "Door" ? "active" : ""
+                    }`}
                     onClick={() =>
                       handleSelection(address?.doordelivarycharge, "Door")
                     }
@@ -650,8 +723,9 @@ const Checkout = () => {
                   </div>
                   <div
                     variant={selectedOption === "Gate/Tower" ? "white" : ""}
-                    className={`rightcard ${selectedOption === "Gate/Tower" ? "active" : ""
-                      }`}
+                    className={`rightcard ${
+                      selectedOption === "Gate/Tower" ? "active" : ""
+                    }`}
                     onClick={() =>
                       handleSelection(address?.Delivarycharge, "Gate/Tower")
                     }
@@ -694,8 +768,9 @@ const Checkout = () => {
               ) : (
                 <div
                   variant={selectedOption === "Gate/Tower" ? "white" : ""}
-                  className={`rightcard ${selectedOption === "Gate/Tower" ? "active" : ""
-                    }`}
+                  className={`rightcard ${
+                    selectedOption === "Gate/Tower" ? "active" : ""
+                  }`}
                   onClick={() =>
                     handleSelection(address?.Delivarycharge, "Gate/Tower")
                   }
@@ -737,7 +812,38 @@ const Checkout = () => {
               )}
             </div>
           </div>
+          <div className="cutleryDiv">
+            {/* <div className="d-flex"> */}
+            <input
+              type="text"
+              // className="form-check-input "
+              value={couponId}
+              placeholder="Enter your promo code"
+              onChange={(e) => setCouponId(e.target.value)}
+              style={{
+                border: "1px solid orangered",
+                borderRadius: "5px",
+                width: "80%",
+              }}
+            />
 
+            {/* <span style={{ fontWeight: 700, marginLeft: "5px" }}>
+                Cutlery
+              </span> */}
+            {/* </div> */}
+            <div
+              className="btnDiv"
+              style={{
+                justifyContent: "center",
+                cursor: "pointer",
+                paddingTop: "3px",
+                height: "28px",
+              }}
+              onClick={() => applycoupon()}
+            >
+              <span>Apply</span>
+            </div>
+          </div>
           <div className="deliverycard">
             <div
               className="deliveryHead  w-100 ps-2 border-bottom"
@@ -752,6 +858,7 @@ const Checkout = () => {
                     <div>Sub Total</div>
                     <div>Tax {`(${gstlist[0]?.TotalGst} %)`}</div>
                     {Cutlery != 0 && <div>Cutlery</div>}
+                    {coupon != 0 && <div>Coupon Discount</div>}
                     {selectedOption ? (
                       <div>{`${selectedOption} Delivery`}</div>
                     ) : (
@@ -768,11 +875,10 @@ const Checkout = () => {
 
                     <div>₹ {calculateTaxPrice.toFixed(2)}</div>
                     {Cutlery != 0 && <div>₹ {Cutlery} </div>}
-                    {(selectedOption) ? (
-                      <div>₹ {delivarychargetype} </div>
-                    ) : (
-                      ""
+                    {coupon != 0 && (
+                      <div style={{ color: "green" }}> - ₹ {coupon} </div>
                     )}
+                    {selectedOption ? <div>₹ {delivarychargetype} </div> : ""}
                     <div>
                       {Cutlery ? (
                         <b>
@@ -781,15 +887,18 @@ const Checkout = () => {
                             calculateTaxPrice +
                             subtotal +
                             Cutlery +
-                            delivarychargetype || 0
+                            (delivarychargetype || 0) -
+                            coupon
                           ).toFixed(2)}{" "}
                         </b>
                       ) : (
                         <b>
                           ₹{" "}
                           {(
-                            calculateTaxPrice + subtotal + delivarychargetype ||
-                            0
+                            calculateTaxPrice +
+                            subtotal +
+                            (delivarychargetype || 0) -
+                            coupon
                           ).toFixed(2)}
                         </b>
                       )}
@@ -846,14 +955,13 @@ const Checkout = () => {
               </span>
               <span
                 onClick={() => {
-                  setFlat(address?.flatno);
+                  setFlat(addresstype=="apartment" ?  address?.flatno:"");
+                  setTowerName(addresstype=="apartment" ?  address?.towerName:"");
                   setname(address?.name);
-                  setApartmentname(address?.apartmentname)
-                  setmobilenumber(address?.mobilenumber)
+                  setApartmentname(address?.apartmentname);
+                  setmobilenumber(address?.mobilenumber);
                   handleShow();
                   // setdelivaryaddress("");
-                  getapartmentd();
-                  getCorporatedata();
                 }}
                 style={{ cursor: "pointer" }}
               >
@@ -864,17 +972,12 @@ const Checkout = () => {
               </span>
             </div>
 
-
             <div>
               <div className="d-flex">
-                {address?.name},{" "}
-                {address?.flatno ? `${address?.flatno},` : ""}
-               
-                {address?.mobilenumber},
-
+                {address?.name}, {addresstype=="apartment" ? `${address?.flatno},` : ""} {addresstype=="apartment" ? `${address?.towerName},` : ""}
+                {address?.mobilenumber}
               </div>
             </div>
-
           </div>
 
           <div>
@@ -896,9 +999,9 @@ const Checkout = () => {
                       ₹{" "}
                       {(
                         calculateTaxPrice +
-                        subtotal +
-                        Cutlery +
-                        delivarychargetype || 0
+                          subtotal +
+                          Cutlery +
+                          delivarychargetype || 0
                       ).toFixed(2)}
                     </b>
                   ) : (
@@ -931,9 +1034,9 @@ const Checkout = () => {
                       ₹{" "}
                       {(
                         calculateTaxPrice +
-                        subtotal +
-                        Cutlery +
-                        delivarychargetype || 0
+                          subtotal +
+                          Cutlery +
+                          delivarychargetype || 0
                       ).toFixed(2)}
                     </b>
                   ) : (
@@ -949,10 +1052,10 @@ const Checkout = () => {
             )}
           </div>
         </div>
-      </Container >
+      </Container>
 
       {/* New address  */}
-      < Modal show={show} onHide={handleClose} style={{ zIndex: "99999" }}>
+      <Modal show={show} onHide={handleClose} style={{ zIndex: "99999" }}>
         <Modal.Header closeButton>
           <Modal.Title>Add Address</Modal.Title>
         </Modal.Header>
@@ -960,8 +1063,8 @@ const Checkout = () => {
           <Form>
             {addresstype === "apartment" ? (
               <select
-                value={address?.apartmentname}
-                onChange={(e) => setApartmentname(e.target.value)}
+                value={apartmentname}
+                onChange={(e) =>getSelectedAddress(e.target.value)}
                 className="vi_0 slot"
                 style={{
                   color: "black",
@@ -977,7 +1080,7 @@ const Checkout = () => {
                     value={data?.Apartmentname}
                     style={{ color: "black" }}
                     className="option"
-                  // onClick={()=>setpincode(data?.pincode)}
+                    // onClick={()=>setpincode(data?.pincode)}
                   >
                     {data?.Apartmentname}
                   </option>
@@ -985,8 +1088,8 @@ const Checkout = () => {
               </select>
             ) : (
               <select
-                value={address?.apartmentname}
-                onChange={(e) => setApartmentname(e.target.value)}
+              value={apartmentname}
+              onChange={(e) =>getSelectedAddress(e.target.value)}
                 className="vi_0 slot"
                 style={{
                   color: "black",
@@ -997,7 +1100,7 @@ const Checkout = () => {
                 <option value="" style={{ color: "black" }} className="option">
                   Select Corporate
                 </option>
-                {corporatedata.map((data, index) => (
+                {corporatedata?.map((data, index) => (
                   <option
                     value={data?.Apartmentname}
                     style={{ color: "black" }}
@@ -1016,16 +1119,6 @@ const Checkout = () => {
               value={name}
               onChange={(e) => setname(e.target.value)}
             />
-            {addresstype === "apartment" ? (
-              <Form.Control
-                type="text"
-                value={flat}
-                placeholder="Enter Flat No, Building Name ,Address"
-                style={{ marginTop: "18px" }}
-                onChange={(e) => setFlat(e.target.value)}
-              />
-            ) : null}
-
             <Form.Control
               type="number"
               placeholder="Enter Phone Number"
@@ -1033,6 +1126,25 @@ const Checkout = () => {
               value={mobilenumber}
               onChange={(e) => setmobilenumber(e.target.value)}
             />
+            {addresstype === "apartment" ? (
+              <Form.Control
+                type="text"
+                value={flat}
+                placeholder="Enter Flat No"
+                style={{ marginTop: "18px" }}
+                onChange={(e) => setFlat(e.target.value)}
+              />
+            ) : null}
+
+            {addresstype === "apartment" ? (
+              <Form.Control
+                type="text"
+                value={towerName}
+                placeholder="Enter tower name "
+                style={{ marginTop: "18px" }}
+                onChange={(e) => setTowerName(e.target.value)}
+              />
+            ) : null}
             <Button
               variant=""
               className="modal-add-btn"
@@ -1043,10 +1155,10 @@ const Checkout = () => {
             </Button>
           </Form>
         </Modal.Body>
-      </Modal >
+      </Modal>
 
       {/* price brakup  */}
-      < Modal show={show1} onHide={handleClose1} style={{ zIndex: "99999" }}>
+      <Modal show={show1} onHide={handleClose1} style={{ zIndex: "99999" }}>
         <Modal.Header closeButton>
           <Modal.Title>Price Breakups </Modal.Title>
         </Modal.Header>
@@ -1059,8 +1171,8 @@ const Checkout = () => {
             </div>
           </div>
         </Modal.Body>
-      </Modal >
-    </div >
+      </Modal>
+    </div>
   );
 };
 

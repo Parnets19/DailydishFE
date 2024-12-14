@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Card, Carousel, Container } from "react-bootstrap";
-import { FaEye, FaEyeSlash, FaUser } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaLock, FaUser } from "react-icons/fa";
 import { Button, Dropdown, Form, InputGroup, Modal } from "react-bootstrap";
-import { FaPlus, FaMinus } from "react-icons/fa6";
+import { FaPlus, FaMinus, FaSquareWhatsapp } from "react-icons/fa6";
 import "../Styles/Home.css";
 import Banner from "./Banner";
 import { useNavigate } from "react-router-dom";
@@ -95,13 +95,11 @@ const Home = ({ selectArea, setSelectArea, Carts, setCarts }) => {
     setloader(true);
     try {
       let res = await axios.get(
-        "https://dailydishbangalore.com/api/admin/getFoodItems"
+        "https://dailydishbangalore.com/api/admin/getFoodItemsUnBlocks"
       );
       if (res.status === 200) {
         setfooditemdata(res.data.data);
-      
         setloader(false);
-   
       }
     } catch (error) {
       setloader(false);
@@ -261,9 +259,10 @@ const Home = ({ selectArea, setSelectArea, Carts, setCarts }) => {
     : JSON.parse(localStorage.getItem("coporateaddress"));
     if (!address) {
       return alert(
-        "Please Select Apartment/Corporate"
+        `Please Select ${addresstype}`
       );
     }
+    
     navigate("/checkout", {
       state: {
         newsubtotal,
@@ -373,9 +372,11 @@ const Home = ({ selectArea, setSelectArea, Carts, setCarts }) => {
 
  
   const userLogin = async () => {
+
     if (!Mobile) {
       return alert("Enter Your Mobile Number");
     }
+    setloader(true)
     try {
       const config = {
         url: "/User/Sendotp",
@@ -396,10 +397,12 @@ const Home = ({ selectArea, setSelectArea, Carts, setCarts }) => {
         alert("Error sending OTP");
       }
       if (res.status === 200) {
+        setloader(false)
         handleClose3();
         handleShow2();
       }
     } catch (error) {
+      setloader(false)
       console.log("error", error.message);
     }
   };
@@ -412,67 +415,67 @@ const Home = ({ selectArea, setSelectArea, Carts, setCarts }) => {
     return regex.test(mobileNumber);
   }
 
-  const handleRegister = async () => {
-    if (!Fname) {
-      return alert("Enter Your Name");
-    }
-    if (!Mobile) {
-      return alert("Enter Your Mobile Number");
-    }
-    if (!Address) {
-      return alert("Enter Your Address");
-    }
-    if (!Flatno) {
-      return alert("Enter Your Flat Number");
-    }
-    if (!validateIndianMobileNumber(Mobile)) {
-      return alert("Invalid mobile number");
-    }
-    try {
-      const config = {
-        url: "/User/registercustomer",
-        method: "post",
-        baseURL: "https://dailydishbangalore.com/api",
+  // const handleRegister = async () => {
+  //   if (!Fname) {
+  //     return alert("Enter Your Name");
+  //   }
+  //   if (!Mobile) {
+  //     return alert("Enter Your Mobile Number");
+  //   }
+  //   if (!Address) {
+  //     return alert("Enter Your Address");
+  //   }
+  //   if (!Flatno) {
+  //     return alert("Enter Your Flat Number");
+  //   }
+  //   if (!validateIndianMobileNumber(Mobile)) {
+  //     return alert("Invalid mobile number");
+  //   }
+  //   try {
+  //     const config = {
+  //       url: "/User/registercustomer",
+  //       method: "post",
+  //       baseURL: "https://dailydishbangalore.com/api",
 
-        headers: { "content-type": "application/json" },
-        data: {
-          Fname: Fname,
-          Address: Address,
-          Mobile: Mobile,
-          Flatno: Flatno,
-        },
-        maxRedirects: 0,
-      };
-      let res = await axios(config);
-      if (res.status === 200) {
-        saveSelectedAddress();
-        localStorage.setItem("user", JSON.stringify(res.data.details));
-        setFname(" ");
-        setAddress(" ");
-        setFlatno(" ");
-        handleClose4();
-        // loginAdmin();
-        handleShow3();
-      }
-      if (res.status === 302) {
-        alert(res.data.message);
-      }
-    } catch (error) {
-      if (error.response) {
-        if (error.response.status === 302) {
-          // Handle 302 as a custom case
-          alert(error.response.data.message || "Redirection occurred");
-        } else {
-          // Handle other errors
-          alert(error.response.data.message || "An error occurred");
-        }
-      } else if (error.request) {
-        alert("No response from the server. Please try again.");
-      } else {
-        alert(error.message);
-      }
-    }
-  };
+  //       headers: { "content-type": "application/json" },
+  //       data: {
+  //         Fname: Fname,
+  //         Address: Address,
+  //         Mobile: Mobile,
+  //         Flatno: Flatno,
+  //       },
+  //       maxRedirects: 0,
+  //     };
+  //     let res = await axios(config);
+  //     if (res.status === 200) {
+  //       saveSelectedAddress();
+  //       localStorage.setItem("user", JSON.stringify(res.data.details));
+  //       setFname(" ");
+  //       setAddress(" ");
+  //       setFlatno(" ");
+  //       handleClose4();
+     
+  //       handleShow3();
+  //     }
+  //     if (res.status === 302) {
+  //       alert(res.data.message);
+  //     }
+  //   } catch (error) {
+  //     if (error.response) {
+  //       if (error.response.status === 302) {
+  //         // Handle 302 as a custom case
+  //         alert(error.response.data.message || "Redirection occurred");
+  //       } else {
+  //         // Handle other errors
+  //         alert(error.response.data.message || "An error occurred");
+  //       }
+  //     } else if (error.request) {
+  //       alert("No response from the server. Please try again.");
+  //     } else {
+  //       alert(error.message);
+  //     }
+  //   }
+  // };
 
 
 
@@ -502,7 +505,7 @@ const Home = ({ selectArea, setSelectArea, Carts, setCarts }) => {
           handleClose3();
           return navigate("/home");
         }
-        navigate("/checkout");
+        navigate("/home");
         handleClose2();
         setOTP("");
         setMobile(" ");
@@ -530,46 +533,6 @@ const Home = ({ selectArea, setSelectArea, Carts, setCarts }) => {
   }, [cart]);
   
 
-  const [selectedAddress, setSelectedAddress] = useState({});
-  const getSelectedAddress = async () => {
-    try {
-      let res = await axios.get(
-        `https://dailydishbangalore.com/api/user/getSelectedAddressByUserID/${user?._id}`
-      );
-      if (res.status === 200) {
-        setSelectedAddress(res.data.getdata);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    getSelectedAddress();
-  }, []);
-
-  const saveSelectedAddress = async (data) => {
-    try {
-      let res = await axios.post(
-        `https://dailydishbangalore.com/api/user/addressadd`,
-        {
-          Name: user?.Fname,
-          Number: user?.Mobile,
-          userId: user?._id,
-          ApartmentName: data?.apartmentname,
-          Address: data?.Address,
-          approximatetime: data?.approximatetime,
-          prefixcode: data?.prefixcode,
-        }
-      );
-      if (res.status === 200) {
-        setSelectedAddress(res.data.getdata);
-        // alert("Address Selected");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
   console.log("fooditemdata", fooditemdata);
 
   return (
@@ -849,10 +812,10 @@ const Home = ({ selectArea, setSelectArea, Carts, setCarts }) => {
                                             : JSON.parse(localStorage.getItem("coporateaddress"));
                                             if (!address) {
                                               return alert(
-                                                "Please Select Apartment/Corporate"
+                                              `Please select your ${addresstype}`
                                               );
                                             }
-                                            handleShow4();
+                                            handleShow3();
                                           }}
                                         >
                                           <HiMiniShoppingBag size={25} />
@@ -881,7 +844,7 @@ const Home = ({ selectArea, setSelectArea, Carts, setCarts }) => {
        
       </Container>
 
-      <Modal
+      {/* <Modal
         show={show4}
         backdrop="static"
         onHide={handleClose4}
@@ -945,48 +908,56 @@ const Home = ({ selectArea, setSelectArea, Carts, setCarts }) => {
             Login
           </Button>
         </Modal.Body>
-      </Modal>
+      </Modal> */}
 
-      <Modal show={show3} backdrop="static" onHide={handleClose3}>
-        <Modal.Header closeButton>
-          <Modal.Title>Login Here</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
+     <Modal show={show3} backdrop="static" onHide={handleClose3}>
+          <Modal.Header closeButton>
+            <Modal.Title className="d-flex align-items-center gap-1"><FaLock color="orangered"/>  <span>Welcome to Dailydish</span> </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            
+            <Form>
+            <div className="login-whatsappwithicon">
+             
+                <FaSquareWhatsapp  size={42} color="green"/>
+           
             <Form.Control
-              type="number"
-              placeholder="Enter Phone Number"
-              style={{ marginTop: "18px" }}
-              onChange={(e) => setMobile(e.target.value)}
-            />
-
-            <Button
-              variant=""
-              style={{
-                width: "100%",
-                marginTop: "24px",
-                backgroundColor: "orangered",
-                color: "white",
-                textAlign: "center",
-              }}
-              onClick={() => {
-                if (!validateIndianMobileNumber(Mobile)) {
-                  return alert("Invalid mobile number");
-                }
-                userLogin();
-              }}
-              // onClick={() => navigate("/checkout")}
-            >
-              Login
+                type="number"
+                placeholder="Enter Your WhatsApp Number"
+               
+                value={Mobile}
+                onChange={(e) => setMobile(e.target.value)}
+              />
+            </div>
+             
+  
+              <Button
+                variant=""
+                style={{
+                  width: "100%",
+                  marginTop: "24px",
+                  backgroundColor: "orangered",
+                  color: "white",
+                  textAlign: "center",
+                }}
+                onClick={() => {
+                  if (!validateIndianMobileNumber(Mobile)) {
+                    return alert("Invalid mobile number");
+                  }
+                  userLogin()
+                }}
+                // onClick={() => navigate("/checkout")}
+              >
+                Send otp
+              </Button>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose3}>
+              Close
             </Button>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose3}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
+          </Modal.Footer>
+        </Modal>
 
       {/* OTP  */}
       <Modal

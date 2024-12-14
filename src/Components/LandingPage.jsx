@@ -69,32 +69,7 @@ const LandingPage = () => {
                 />
               </div>
 
-              {/* <div className="screenone-title mb-2">
-                <span>Home food Starts at</span>
-                <br />
-                <Button
-                  variant=""
-                  className="modal-add-btn"
-                  style={{
-                    borderLeft: "dotted",
-                    borderBottom: "double",
-                  }}
-                >
-                  49
-                </Button>
-              </div> */}
-
-{/* <div className="freelogomain ">
-  <div>
-    <img src="./Assets/no.png" alt="" srcset="" className="freelogo"/>
-  </div>
-  <div>
-  <img src="./Assets/free.png" alt="" srcset="" className="freelogo"/>
-  </div>
-  <div>
-  <img src="./Assets/hundred.png" alt="" srcset="" className="freelogo"/>
-  </div>
-</div> */}
+             
 
               <div className="hellodeliver ">
                 <h6 className=" mbl ">Hello!</h6>
@@ -134,10 +109,12 @@ const LandingPage = () => {
                         <div className="top-right-icon">
                           <FaCheck />
                         </div>
+
                       )}
                     </div>
 
                     <b className="mbl-name">Apartment</b>
+                    <p className="apartment-launching"> Launching Soon</p>
                   </div>
                   <div className="button-container">
                     <div
@@ -164,6 +141,7 @@ const LandingPage = () => {
                       <h6 className="mt-2" style={{ color: "black" }}>
                         Corporate
                       </h6>
+                      <p className="corporate-mon">Mon - Fri</p>
                       {selectedOption === "corporate" && (
                         <div className="top-right-icon">
                           <FaCheck />

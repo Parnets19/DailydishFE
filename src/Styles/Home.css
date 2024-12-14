@@ -89,6 +89,13 @@
 /* .mobile-product-box {
   display: none !important;
 } */
+
+.login-whatsappwithicon{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
 .ant-drawer-content-wrapper {
   width: 28% !important;
   /* Set drawer width */

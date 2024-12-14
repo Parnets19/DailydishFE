@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
+  MdDiscount,
   MdOutlineSmartScreen,
   MdOutlineSupportAgent,
   MdSubject,
@@ -12,8 +13,9 @@ import { GiHamburgerMenu } from "react-icons/gi";
 import { AiOutlineClose } from "react-icons/ai";
 import { BsFillBuildingsFill } from "react-icons/bs";
 import { FaWeightHanging } from "react-icons/fa";
+import { CiDiscount1 } from "react-icons/ci";
+import { MdProductionQuantityLimits } from "react-icons/md";
 import axios from "axios";
-
 
 const Side = () => {
   // Responsive sidebar
@@ -24,7 +26,9 @@ const Side = () => {
   const [AddApartment, setAddApartment] = useState([]);
   const getAddApartment = async () => {
     try {
-      let res = await axios.get("https://dailydishbangalore.com/api/admin/getapartment");
+      let res = await axios.get(
+        "https://dailydishbangalore.com/api/admin/getapartment"
+      );
       if (res.status === 200) {
         setAddApartment(res.data.corporatedata.reverse());
       }
@@ -40,7 +44,9 @@ const Side = () => {
   const [ApartmentOrder, setApartmentOrder] = useState([]);
   const getApartmentOrder = async () => {
     try {
-      let res = await axios.get("https://dailydishbangalore.com/api/admin/getallorders");
+      let res = await axios.get(
+        "https://dailydishbangalore.com/api/admin/getallorders"
+      );
       if (res.status === 200) {
         setApartmentOrder(res.data.order.reverse());
       }
@@ -56,7 +62,9 @@ const Side = () => {
   const [AddCorporate, setAddCorporate] = useState([]);
   const getAddCorporate = async () => {
     try {
-      let res = await axios.get("https://dailydishbangalore.com/api/admin/getcorporate");
+      let res = await axios.get(
+        "https://dailydishbangalore.com/api/admin/getcorporate"
+      );
       if (res.status === 200) {
         setAddCorporate(res.data.corporatedata.reverse());
       }
@@ -69,26 +77,24 @@ const Side = () => {
     getAddCorporate();
   }, [AddCorporate]);
 
+  // get method Integration location request
+  const [Enquiry, setEnquiry] = useState([]);
+  const getEnquiry = async () => {
+    try {
+      let res = await axios.get(
+        "https://dailydishbangalore.com/api/User/getEnquiryenquiry"
+      );
+      if (res.status === 200) {
+        setEnquiry(res.data.getdata.reverse());
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-   // get method Integration location request
-   const [Enquiry, setEnquiry] = useState([]);
-   const getEnquiry = async () => {
-     try {
-       let res = await axios.get(
-         "https://dailydishbangalore.com/api/User/getEnquiryenquiry"
-       );
-       if (res.status === 200) {
-         setEnquiry(res.data.getdata.reverse());
-       }
-     } catch (error) {
-       console.log(error);
-     }
-   };
-
-   useEffect(() => {
+  useEffect(() => {
     getEnquiry();
   }, []);
-
 
   //User list get method Integration
   const [Adduser, setAdduser] = useState([]);
@@ -176,7 +182,12 @@ const Side = () => {
                   <span>
                     <BsFillBuildingsFill style={{ fontSize: "20px" }} />
                   </span>
-                  <span className="ms-2">Apartment List <span className="sidebar-count">{AddApartment?.length}</span></span>
+                  <span className="ms-2">
+                    Apartment List{" "}
+                    <span className="sidebar-count">
+                      {AddApartment?.length}
+                    </span>
+                  </span>
                 </li>
               </Link>
 
@@ -185,7 +196,12 @@ const Side = () => {
                   <span>
                     <BsFillBuildingsFill style={{ fontSize: "20px" }} />
                   </span>
-                  <span className="ms-2">Corporate List <span className="sidebar-count">{AddCorporate?.length}</span></span>
+                  <span className="ms-2">
+                    Corporate List{" "}
+                    <span className="sidebar-count">
+                      {AddCorporate?.length}
+                    </span>
+                  </span>
                 </li>
               </Link>
 
@@ -198,7 +214,7 @@ const Side = () => {
                 </li>
               </Link> */}
 
-<Link to="/gst" onClick={handleNavCollapse}>
+              <Link to="/gst" onClick={handleNavCollapse}>
                 <li className="a-ele ">
                   <span>
                     <LuAlignHorizontalJustifyStart
@@ -212,14 +228,23 @@ const Side = () => {
               <Link to="/all-products" onClick={handleNavCollapse}>
                 <li className="a-ele ">
                   <span>
-                    <LuAlignHorizontalJustifyStart
+                    <MdProductionQuantityLimits
                       style={{ fontSize: "20px" }}
                     />
                   </span>
                   <span className="ms-2">Products </span>
                 </li>
               </Link>
-
+              <Link to="/coupon-list" onClick={handleNavCollapse}>
+                <li className="a-ele ">
+                  <span>
+                    <MdDiscount   
+                      style={{ fontSize: "20px" }}
+                    />
+                  </span>
+                  <span className="ms-2">Coupon Mangement </span>
+                </li>
+              </Link>
               <Link to="/apartment-booking-list" onClick={handleNavCollapse}>
                 <li className="a-ele ">
                   <span>
@@ -227,7 +252,16 @@ const Side = () => {
                       style={{ fontSize: "20px" }}
                     />
                   </span>
-                  <span className="ms-2">Apartment Orders <span className="sidebar-count">{ApartmentOrder.filter(item=>item?.orderdelivarytype==="apartment")?.length}</span></span>
+                  <span className="ms-2">
+                    Apartment Orders{" "}
+                    <span className="sidebar-count">
+                      {
+                        ApartmentOrder.filter(
+                          (item) => item?.orderdelivarytype === "apartment"
+                        )?.length
+                      }
+                    </span>
+                  </span>
                 </li>
               </Link>
 
@@ -238,7 +272,16 @@ const Side = () => {
                       style={{ fontSize: "20px" }}
                     />
                   </span>
-                  <span className="ms-2">Corporate Orders <span className="sidebar-count">{ApartmentOrder.filter(item=>item?.orderdelivarytype==="corporate")?.length}</span></span>
+                  <span className="ms-2">
+                    Corporate Orders{" "}
+                    <span className="sidebar-count">
+                      {
+                        ApartmentOrder.filter(
+                          (item) => item?.orderdelivarytype === "corporate"
+                        )?.length
+                      }
+                    </span>
+                  </span>
                 </li>
               </Link>
 
@@ -331,7 +374,10 @@ const Side = () => {
                   <span>
                     <MdSubject style={{ fontSize: "20px" }} />
                   </span>
-                  <span className="ms-2">User List <span className="sidebar-count">{Adduser?.length}</span></span>
+                  <span className="ms-2">
+                    User List{" "}
+                    <span className="sidebar-count">{Adduser?.length}</span>
+                  </span>
                 </li>
               </Link>
 
@@ -349,10 +395,13 @@ const Side = () => {
                   <span>
                     <FaWeightHanging style={{ fontSize: "20px" }} />
                   </span>
-                  <span className="ms-2">Location Request <span className="sidebar-count">{Enquiry?.length}</span> </span>
+                  <span className="ms-2">
+                    Location Request{" "}
+                    <span className="sidebar-count">{Enquiry?.length}</span>{" "}
+                  </span>
                 </li>
               </Link>
-              
+
               {/* <Link to="/contact-us" onClick={handleNavCollapse}>
                 <li className="a-ele ">
                   <span>

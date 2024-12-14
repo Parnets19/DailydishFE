@@ -45,11 +45,12 @@
 }
 
 .user-picture {
-  width: 80%;
-  height: 100%;
+  width: 100px;
+  height: 100px;
   margin: 22px auto;
   border-radius: 50%;
   align-items: center;
+  border: 8px solid rgb(252, 236, 236);
   text-align: center;
   justify-content: center;
   display: flex;

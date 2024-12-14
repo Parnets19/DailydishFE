@@ -797,6 +797,7 @@ const CorporateBookings = () => {
                 <th>Slots Details</th>
                 <th>Category Name</th>
                 <th>Product Name</th>
+                <th>Cutlery</th>
                 <th>Unit</th>
                 <th>Quantity</th>
            
@@ -847,6 +848,7 @@ const CorporateBookings = () => {
                           return `${item?.foodItemId?.foodname}` + ",";
                         })}
                       </td>
+                      <td>{items?.Cutlery>0 ?"Yes":"No"}</td>
                       <td style={{ paddingTop: "20px" }}>
                         {items?.allProduct.map((item) => {
                           return `${item?.foodItemId?.unit}` + ",";

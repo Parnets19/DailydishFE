@@ -39,6 +39,7 @@ import Gst from "./Components/Admin/Gst";
 import PrivacyPolicy from "./Components/PrivacyPolicy";
 import TermsAndConditions from "./Components/TermsAndCondition";
 import PaymentSuccess from "./Components/PaymentSuccess";
+import AdminCoupon from "./Components/Admin/AdminCoupon";
 
 function App() {
   const [selectArea, setSelectArea] = useState("");
@@ -197,6 +198,10 @@ function App() {
           <Route
             path="/delivery-charge"
             element={<Main children={<DeliveryCharge />} />}
+          />
+          <Route
+            path="/coupon-list"
+            element={<Main children={<AdminCoupon />} />}
           />
           <Route
             path="/apartment-booking-list"
