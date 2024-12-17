@@ -105,6 +105,14 @@ input:checked + .custom-checkbox-label::after {
   display: flex;
   justify-content: center;
 }
+.modal-add-btn2 {
+  background-color: #F81D0F !important;
+  color: #F5FBF8;
+}
+.modal-add-btn2:hover{
+  opacity: 0.8;
+  color: #F5FBF8;
+}
 .prices div {
   display: inline-block;
   text-align: right;

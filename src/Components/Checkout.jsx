@@ -136,10 +136,10 @@ const Checkout = () => {
   const [Cutlery, setCutlery] = useState(0);
   const [paymentmethod, setpaymentmethod] = useState("Online");
 
-  const [name, setname] = useState();
-  const [buildingaddress, setbuildingaddress] = useState();
-  const [pincode, setpincode] = useState();
-  const [mobilenumber, setmobilenumber] = useState();
+  const [name, setname] = useState("");
+  const [buildingaddress, setbuildingaddress] = useState("");
+  const [pincode, setpincode] = useState("");
+  const [mobilenumber, setmobilenumber] = useState("");
   const [selectedValue, setSelectedValue] = useState("Apartment");
   const [flat, setFlat] = useState("");
 
@@ -315,9 +315,10 @@ const Checkout = () => {
       );
       if (res.status === 200) {
         let am = res.data.getdata;
+console.log("Ammm=>",am);
 
         setname(am?.Name?am?.Name:"");
-        setmobilenumber(am?.Number?am?.Number:"");
+        setmobilenumber(am?.Number ? am?.Number:"");
         setTowerName(am?.towerName?am?.towerName:"");
         setFlat(am?.fletNumber? am?.fletNumber:"");
       }
@@ -342,8 +343,11 @@ const Checkout = () => {
           towerName: towerName,
         }
       );
+
+      // console.log("Savedshs",data);
+      
     } catch (error) {
-      console.log(error);
+      console.log("errrrrr",error);
     }
   };
 
@@ -1059,8 +1063,8 @@ const Checkout = () => {
       </Container>
 
       {/* New address  */}
-      <Modal show={show} onHide={handleClose} style={{ zIndex: "99999" }}>
-        <Modal.Header closeButton>
+      <Modal show={show}  style={{ zIndex: "99999" }}>
+        <Modal.Header >
           <Modal.Title>Add Address</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -1151,7 +1155,7 @@ const Checkout = () => {
             ) : null}
             <Button
               variant=""
-              className="modal-add-btn"
+              className="modal-add-btn2"
               style={{ width: "100%", marginTop: "24px", textAlign: "center" }}
               onClick={() => Handeledata()}
             >

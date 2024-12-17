@@ -397,7 +397,7 @@ const OrderHistory = () => {
                           setPrevious(false);
                         }}
                       >
-                        <Button variant="" className="modal-close-btn">
+                        <Button variant=""  className="modal-add-btn2">
                           Ongoing
                         </Button>
                       </div>
@@ -508,7 +508,7 @@ const OrderHistory = () => {
                             setPrevious(true);
                           }}
                         >
-                          <Button variant="" className="modal-close-btn ">
+                          <Button variant="" className="modal-add-btn2">
                             Previous
                           </Button>
                         </div>

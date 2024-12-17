@@ -125,8 +125,12 @@ const [showApply,setshowapply]=useState(false);
   const usersDataForCSV = users.map((user) => ({
     Name: user.Name,
     MobileNumber: user.MobileNumber,
-    Date_Time:moment(user?.AppliedDate).format('lll')
+    Date_Time:user?.AppliedDate ? moment(user?.AppliedDate).format('lll'):""
   }));
+
+
+  console.log("user==>",users);
+  
   return (
     <div className="container mt-4">
       <h1 className="header-c"> Coupon Management</h1>
@@ -350,7 +354,7 @@ const [showApply,setshowapply]=useState(false);
                     <tr key={user._id}>
                       <td>{user.Name}</td>
                       <td>{user.MobileNumber}</td>
-                      <td>{moment(user?.AppliedDate).format('lll')}</td>
+                      <td>{user?.AppliedDate ? moment(user?.AppliedDate).format('lll') : ""}</td>
                     </tr>
                   ))}
                 </tbody>
