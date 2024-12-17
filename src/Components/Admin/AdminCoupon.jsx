@@ -7,6 +7,7 @@ import { CSVLink } from "react-csv"; // Import react-csv
 import swal from "sweetalert";
 import { BsEye } from "react-icons/bs";
 import { FaRegEye } from "react-icons/fa";
+import moment from "moment";
 const AdminCoupon = () => {
   const [coupons, setCoupons] = useState([]);
   const [formData, setFormData] = useState({
@@ -122,8 +123,9 @@ const [showApply,setshowapply]=useState(false);
   const [users, setUsers] = useState([]);
   const [selectedCoupon, setSelectedCoupon] = useState(null);
   const usersDataForCSV = users.map((user) => ({
-    Name: user.name,
-    MobileNumber: user.mobileNumber,
+    Name: user.Name,
+    MobileNumber: user.MobileNumber,
+    Date_Time:moment(user?.AppliedDate).format('lll')
   }));
   return (
     <div className="container mt-4">
@@ -340,6 +342,7 @@ const [showApply,setshowapply]=useState(false);
                   <tr>
                     <th>Name</th>
                     <th>Mobile Number</th>
+                    <th>Date/Time</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -347,6 +350,7 @@ const [showApply,setshowapply]=useState(false);
                     <tr key={user._id}>
                       <td>{user.Name}</td>
                       <td>{user.MobileNumber}</td>
+                      <td>{moment(user?.AppliedDate).format('lll')}</td>
                     </tr>
                   ))}
                 </tbody>

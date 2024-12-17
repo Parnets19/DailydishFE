@@ -40,10 +40,7 @@ const OrderHistory = () => {
   const [show2, setShow2] = useState(false);
 
   const handleClose2 = () => setShow2(false);
-  const handleShow2 = (item) => {
-    setShow2(true);
-    setData1(item);
-  };
+
 
   const user = JSON.parse(localStorage.getItem("user"));
 

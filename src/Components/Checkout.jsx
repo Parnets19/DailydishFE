@@ -203,6 +203,8 @@ const Checkout = () => {
         icon: "error",
         buttons: "ok",
       });
+      setCoupon(0)
+      setCouponId("")
       console.log(error);
     }
   };
@@ -1003,7 +1005,7 @@ const Checkout = () => {
                         calculateTaxPrice +
                           subtotal +
                           Cutlery +
-                          delivarychargetype || 0
+                          (delivarychargetype || 0) - coupon
                       ).toFixed(2)}
                     </b>
                   ) : (
@@ -1012,7 +1014,7 @@ const Checkout = () => {
                       {(
                         calculateTaxPrice +
                         subtotal +
-                        delivarychargetype
+                        delivarychargetype - coupon
                       ).toFixed(2)}
                     </b>
                   )}
@@ -1038,14 +1040,14 @@ const Checkout = () => {
                         calculateTaxPrice +
                           subtotal +
                           Cutlery +
-                          delivarychargetype || 0
+                          (delivarychargetype || 0 )- coupon
                       ).toFixed(2)}
                     </b>
                   ) : (
                     <b>
                       ₹{" "}
                       {(
-                        calculateTaxPrice + subtotal + delivarychargetype || 0
+                        calculateTaxPrice + subtotal + (delivarychargetype || 0) - coupon
                       ).toFixed(2)}
                     </b>
                   )}

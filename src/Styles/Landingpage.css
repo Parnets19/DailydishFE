@@ -62,9 +62,10 @@
   position: absolute;
   bottom: -17%;
   color: #f83425;
-  background: #fff5f5;
+  background: white;
   left: 16%;
   font-weight: 700;
+  border-radius: 6px;
 }
 
 .button-container .corporate-mon{
@@ -73,7 +74,8 @@
   color :green;
   left: 30%;
   font-weight: 700;
-  background: #fff5f5;
+  background: white;
+  border-radius: 6px;
 }
 
 /* .selection-button:hover {
@@ -295,7 +297,8 @@ width: 100px;
   position: absolute;
   bottom: -46%;
   color: #f83425;
-  background: #fff5f5;
+  background: white;
+  border-radius: 6px;
   left: 16%;
   font-weight: 700;
 }
@@ -305,7 +308,8 @@ width: 100px;
   color :green;
   left: 30%;
   font-weight: 700;
-  background: #fff5f5;
+  background: white;
+  border-radius: 6px;
 }
   .selection-button {
     height: 190px;
