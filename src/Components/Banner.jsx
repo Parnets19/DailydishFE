@@ -805,20 +805,7 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
                             <div className="textcolor">Privacy Policy </div>
                           </div>
                         </Nav.Link>
-                        <Nav.Link
-                          href="/"
-                          onClick={() => logOut()}
-                          className="tail-text"
-                        >
-                          <div className="d-flex gap-3 align-items-center">
-                            <div>
-                              <span className="iocn">
-                                <MdOutlineLogout className="fabicon" />{" "}
-                              </span>{" "}
-                            </div>
-                            <div className="textcolor">Log Out </div>
-                          </div>
-                        </Nav.Link>
+                     
                         <Nav.Link
                           href=""
                           onClick={() => navigate("/termsconditions")}
@@ -831,6 +818,20 @@ const Banner = ({ selectArea, setSelectArea, Carts }) => {
                               </span>{" "}
                             </div>
                             <div className="textcolor">Terms & Conditions </div>
+                          </div>
+                        </Nav.Link>
+                        <Nav.Link
+                          href="/"
+                          onClick={() => logOut()}
+                          className="tail-text"
+                        >
+                          <div className="d-flex gap-3 align-items-center">
+                            <div>
+                              <span className="iocn">
+                                <MdOutlineLogout className="fabicon" />{" "}
+                              </span>{" "}
+                            </div>
+                            <div className="textcolor">Log Out </div>
                           </div>
                         </Nav.Link>
                       </div>

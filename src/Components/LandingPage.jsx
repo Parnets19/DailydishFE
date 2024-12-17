@@ -13,6 +13,7 @@ import "../Styles/Landingpage.css";
 import Banner from "./Banner";
 import { IoMdHeart } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
+import swal from "sweetalert";
 
 const LandingPage = () => {
   const [selectedOption, setSelectedOption] = useState("");
@@ -92,8 +93,14 @@ const LandingPage = () => {
                       }`}
                       onClick={() => {
                         handleSelection("apartment");
-                        localStorage.setItem("addresstype", "apartment");
-                        Navigate("/home");
+                        return swal({
+                          title: "Info",
+                          text: "Launching Soon",
+                          icon: "info",
+                          button: "OK",
+                        })
+                        // localStorage.setItem("addresstype", "apartment");
+                        // Navigate("/home");
                       }}
                     >
                       <img

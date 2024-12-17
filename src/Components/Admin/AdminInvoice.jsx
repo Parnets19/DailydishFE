@@ -162,6 +162,19 @@ const navigate = useNavigate()
                       ) : (
                         <></>
                       )}
+                        {item?.coupon > 0 ? (
+                        <>
+                          <tr>
+                            <td style={{textAlign: "left",fontSize:'14px',fontWeight:"400"  }}>Coupon Discount</td>
+                            <td style={{ textAlign: "right",fontSize:'14px',fontWeight:"400" ,color:"green" }}>
+                              {" "}
+                              ₹ {item?.coupon}
+                            </td>
+                          </tr>
+                        </>
+                      ) : (
+                        <></>
+                      )}
                       <tr>
                         <td style={{ textAlign: "left",fontSize:'14px',fontWeight:"400" }}>Total</td>
                         <td style={{ textAlign: "right",fontSize:'14px',fontWeight:"400" }}>

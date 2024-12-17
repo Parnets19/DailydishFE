@@ -333,6 +333,7 @@ const BookingList = () => {
                 <th>Category Name</th>
                 <th>Product Name</th>
                 <th>Cutlery</th>
+                <th>Coupon Discount</th>
                 <th>Unit</th>
                 <th>Quantity</th>
                 <th>Apartment</th>
@@ -378,6 +379,7 @@ const BookingList = () => {
                         })}
                       </td>
                       <td>{items?.Cutlery>0? "Yes":"No"}</td>
+                      <td style={{ paddingTop: "20px" }}>{items?.coupon>0 ? items?.coupon :"No"}</td>
                       <td style={{ paddingTop: "20px" }}>
                         {items?.allProduct.map((item) => {
                           return `${item?.foodItemId?.unit}` + ",";
@@ -553,6 +555,7 @@ const BookingList = () => {
                     <div>Tax (5)%</div>
                     <div>Cutlery</div>
                     <div>Delivery charges</div>
+                    <div>Coupon Discount</div>
                     <div>
                       <b>Bill total</b>
                     </div>
@@ -565,7 +568,7 @@ const BookingList = () => {
                       <div>₹ {data?.tax}</div>
                       <div>₹ {data?.Cutlery}</div>
                       <div>₹ {data?.delivarytype}</div>
-
+                      <div style={{color:"green"}}>₹ {data?.coupon}</div>
                       <div>
                         <b>
                           ₹{" "}

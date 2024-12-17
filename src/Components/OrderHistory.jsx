@@ -7,7 +7,7 @@ import { IoFastFoodSharp, IoLocation } from "react-icons/io5";
 import { MdOutlineNotificationsActive } from "react-icons/md";
 import axios from "axios";
 import moment from "moment";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
 import Modal from "react-bootstrap/Modal";
 import { FaFileDownload } from "react-icons/fa";
@@ -22,7 +22,8 @@ const OrderHistory = () => {
   const [Previous, setPrevious] = useState(false);
   const [orderitem, setOrderItem] = useState({});
   const [show, setShow] = useState(false);
-
+ const [searchParams] = useSearchParams();
+ const userId = searchParams.get("userID");
   const handleClose = () => {
     setShow(false)
    window.location.assign('/orders')
@@ -47,14 +48,14 @@ const OrderHistory = () => {
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [orders, setorders] = useState([]);
-  const getorders = async () => {
+  const getorders = async (id) => {
     try {
       let res = await axios.get(
-        "https://dailydishbangalore.com/api/admin/getallorders"
+        "https://dailydishbangalore.com/api/admin/getallordersbyUserId/"+id
       );
       if (res.status === 200) {
-        setorders(res.data.order.reverse());
-        console.log("df", res.data.order);
+        setorders(res.data.order);
+  
       }
     } catch (error) {
       console.log(error);
@@ -64,12 +65,11 @@ const OrderHistory = () => {
   // console.log("orders",orders)
 
   useEffect(() => {
-    getorders();
-    // const interval = setInterval(() => {
-    //   getorders();
-    // }, 5000);
+    if(userId){
+      getorders(userId)
+    }else
+    getorders(user?._id);
 
-    // return () => clearInterval(interval);
   }, []);
 
   const [Data1, setData1] = useState({});
@@ -421,7 +421,7 @@ const OrderHistory = () => {
                       {orders
                         ?.filter(
                           (item) =>
-                            item?.customerId === user?._id &&
+                        
                             item?.orderstatus === "Cooking"
                         )
                         .map((items) => {
@@ -520,7 +520,7 @@ const OrderHistory = () => {
                         {orders
                           ?.filter(
                             (item) =>
-                              item?.customerId === user?._id &&
+                          
                               item?.status === "Delivered"
                           )
                           .map((items) => {

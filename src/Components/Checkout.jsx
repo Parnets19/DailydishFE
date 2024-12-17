@@ -218,6 +218,8 @@ const Checkout = () => {
       if (!slotdata) {
         return alert("Please select slots time!");
       }
+      if(!address?.name) return alert("Please enter your address");
+
       if (!addresstype) {
         return alert("Please select the address type!");
       }
@@ -231,7 +233,7 @@ const Checkout = () => {
           customerId: user?._id,
           allProduct: formattedProducts,
           Placedon: d,
-          delivarylocation: delivaryaddress,
+          delivarylocation: address?.apartmentname,
           username: address?.name,
           Mobilenumber: Number(user?.Mobile),
           paymentmethod: paymentmethod,
@@ -286,9 +288,6 @@ const Checkout = () => {
       };
       const res = await axios(config1);
       if (res.status === 200) {
-
-        localStorage.setItem("config",JSON.stringify(config));
-        localStorage.setItem("id",res.data?.id)
         return window.location.assign(res.data?.url?.url);
 
         // window.location.reload(true);
