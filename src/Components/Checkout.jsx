@@ -315,7 +315,7 @@ const Checkout = () => {
       );
       if (res.status === 200) {
         let am = res.data.getdata;
-console.log("Ammm=>",am);
+
 
         setname(am?.Name?am?.Name:"");
         setmobilenumber(am?.Number ? am?.Number:"");
@@ -364,7 +364,7 @@ console.log("Ammm=>",am);
     }
     if( addresstype == "apartment" && !flat) return alert("Please Enter flat number");
     if( addresstype == "apartment" && !towerName) return alert("Please Enter Tower Name");
-    console.log("apartmentname===>",apartmentname);
+
     
     try {
       //corporatedata
@@ -473,8 +473,8 @@ console.log("Ammm=>",am);
   const slots = {
     lunch: {
       early: [
-        { start: "12:30", end: "1:00" },
-        { start: "1:00", end: "1:30" },
+        { start: "12:30", end: "13:00" },
+        { start: "13:00", end: "13:30" },
       ],
       // midday: [
       //   { start: "1:00", end: "1:45" },
